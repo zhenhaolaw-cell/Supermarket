@@ -164,7 +164,7 @@ a{text-decoration:none;color:#333;}ul,ol{list-style:none;}img{border:none;vertic
             e.preventDefault(); var id = parseInt(this.dataset.id);
             var goods = await API.getGoods();
             var gi = goods.find(function(g){return g.id === id;});
-            if(await API.addToCart(id,1,"")){showToast(gi.name+"已加入购物车");}
+            if(await API.addToCart(id,1,"")){showToast(gi.name+"已加入购物车");await updateCartCount();}
             else{showToast("加入购物车失败");}
         });
     });

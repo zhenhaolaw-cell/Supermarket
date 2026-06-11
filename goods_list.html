@@ -177,6 +177,7 @@ async function rg(){
         c.innerHTML = '<a href="goods_detail.html?id=' + items[i].id + '"><div class="goods-img">' + items[i].img + '</div></a><div class="goods-info"><h3 class="goods-name"><a href="goods_detail.html?id=' + items[i].id + '">' + items[i].name + '</a></h3><div class="goods-price"><span>¥</span>' + items[i].price.toFixed(2) + '</div><button class="add-cart-btn" data-id="' + items[i].id + '">加入购物车</button></div>';
         grid.appendChild(c);
     }
+    // (事件委托由外部的 document 级监听器处理)
     if(items.length === 0) grid.innerHTML = '<div style="text-align:center;padding:50px;color:#999;">暂无商品</div>';
     rp();
 }
@@ -185,7 +186,7 @@ function rp(){
     for(var i = 1; i <= tp; i++){
         var b = document.createElement("span"); b.className = "page-btn" + (i===cp?" active":"");
         b.textContent = i;
-        b.onclick = function(){cp = parseInt(this.textContent); rg(); window.scrollTo({top:0,behavior:"smooth"});};
+        b.onclick = async function(){cp = parseInt(this.textContent); await rg(); window.scrollTo({top:0,behavior:'smooth'});};
         p.appendChild(b);
     }
 }
@@ -201,5 +202,29 @@ document.getElementById("searchBtn").addEventListener("click",function(){
     else{showToast("请输入搜索关键词");}
 });
 document.getElementById("searchInput").addEventListener("keydown",function(e){if(e.key==="Enter"){document.getElementById("searchBtn").click();}});
-updateCartCount(); rg();
+// 文档级事件委托：所有 .add-cart-btn 点击统一处理
+document.addEventListener('click', async function(e){
+    var btn = e.target;
+    while(btn && btn !== document){
+        if(btn.classList && btn.classList.contains('add-cart-btn')){
+            e.preventDefault();
+            var id = parseInt(btn.dataset.id);
+            try{
+                var result = await API.addToCart(id,1,'');
+                if(result){
+                    var goods = await API.getGoods();
+                    var gi = goods.find(function(g){return g.id === id;});
+                    showToast((gi?gi.name:'商品')+'已加入购物车');await updateCartCount();
+                }else{
+                    showToast('加入购物车失败');
+                }
+            }catch(err){
+                showToast('加入购物车失败: '+err.message);
+            }
+            return;
+        }
+        btn = btn.parentElement;
+    }
+});
+async function init(){await updateCartCount();await rg();}init();
 </script></body></html>

@@ -8,7 +8,7 @@ import java.util.List;
 
 public class CartDAO {
 
-    /** 获取购物车全部商品 */
+    /** 鑾峰彇璐墿杞﹀叏閮ㄥ晢鍝?*/
     public List<Cart> getAll() {
         List<Cart> list = new ArrayList<>();
         String sql = "SELECT * FROM cart ORDER BY added_at";
@@ -30,7 +30,7 @@ public class CartDAO {
         return list;
     }
 
-    /** 加入购物车（如果已存在同商品同规格则增加数量） */
+    /** 鍔犲叆璐墿杞︼紙濡傛灉宸插瓨鍦ㄥ悓鍟嗗搧鍚岃鏍煎垯澧炲姞鏁伴噺锛?*/
     public boolean addOrUpdate(int goodsId, int quantity, String spec) {
         String checkSql = "SELECT * FROM cart WHERE goods_id = ? AND spec = ?";
         Connection conn = null;
@@ -44,16 +44,17 @@ public class CartDAO {
             rs = ps.executeQuery();
             if (rs.next()) {
                 int newQty = rs.getInt("quantity") + quantity;
+                int cartId = rs.getInt("id");
                 ps.close();
                 String updateSql = "UPDATE cart SET quantity = ? WHERE id = ?";
                 ps = conn.prepareStatement(updateSql);
                 ps.setInt(1, newQty);
-                ps.setInt(2, rs.getInt("id"));
+                ps.setInt(2, cartId);
                 ps.executeUpdate();
             } else {
                 ps.close();
                 rs.close();
-                // 需要从 goods 表获取商品信息
+                // 从goods表获取商品信息
                 String goodsSql = "SELECT name, price, img FROM goods WHERE id = ?";
                 ps = conn.prepareStatement(goodsSql);
                 ps.setInt(1, goodsId);
@@ -84,7 +85,7 @@ public class CartDAO {
         }
     }
 
-    /** 更新购物车商品数量 */
+    /** 鏇存柊璐墿杞﹀晢鍝佹暟閲?*/
     public boolean updateQuantity(int id, int quantity) {
         if (quantity <= 0) return delete(id);
         String sql = "UPDATE cart SET quantity = ? WHERE id = ?";
@@ -104,7 +105,7 @@ public class CartDAO {
         }
     }
 
-    /** 删除购物车中的一项 */
+    /** 鍒犻櫎璐墿杞︿腑鐨勪竴椤?*/
     public boolean delete(int id) {
         String sql = "DELETE FROM cart WHERE id = ?";
         Connection conn = null;
@@ -122,7 +123,7 @@ public class CartDAO {
         }
     }
 
-    /** 清空购物车 */
+    /** 娓呯┖璐墿杞?*/
     public boolean clear() {
         String sql = "DELETE FROM cart";
         Connection conn = null;

@@ -2,7 +2,7 @@
  * API 数据访问层
  * 通过 Ajax 请求连接 Java 后端
  */
-const API_BASE = "http://localhost:8080/supermarket";
+const API_BASE = "/supermarket";
 
 const API = {
     // ===== 商品 =====

@@ -188,7 +188,7 @@ document.getElementById("qtyInput").addEventListener("input",function(){
 });
 document.getElementById("addCartBtn").addEventListener("click", async function(){
     if(!cg) return; var q = parseInt(document.getElementById("qtyInput").value);
-    if(await API.addToCart(cg.id, q, "")){showToast(cg.name+" x"+q+" 已加入购物车");}
+    if(await API.addToCart(cg.id, q, "")){showToast(cg.name+" x"+q+" 已加入购物车");await updateCartCount();}
 });
 document.getElementById("buyNowBtn").addEventListener("click", async function(){
     if(!cg) return; var q = parseInt(document.getElementById("qtyInput").value);
