@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>商品详情 - 便民超市</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei","Helvetica Neue",Arial,sans-serif;}
+a{text-decoration:none;color:#333;}ul,ol{list-style:none;}img{border:none;vertical-align:middle;}
+:root{--red:#e4393c;--orange:#ff6a00;--text:#333;--tlight:#666;--tlighter:#999;--border:#e0e0e0;--bg:#f5f5f5;--white:#fff;}
+
+/* ===== 顶部导航 ===== */
+.top-nav{height:30px;background:#f2f2f2;border-bottom:1px solid #e5e5e5;line-height:30px;font-size:12px;color:var(--tlight);}
+.container{width:1200px;margin:0 auto;}
+.top-nav-left{float:left;}.top-nav-right{float:right;}
+.top-nav a{color:var(--tlight);margin:0 8px;transition:color .2s;}
+.top-nav a:hover{color:var(--red);}
+
+/* ===== 头部 ===== */
+.header{height:100px;background:var(--white);border-bottom:1px solid var(--border);}
+.header-content{display:flex;align-items:center;height:100%;}
+.logo{width:200px;height:60px;background:linear-gradient(135deg,var(--red),#c81623);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--white);font-size:24px;font-weight:bold;margin-right:50px;box-shadow:0 2px 8px rgba(228,57,60,.3);}
+.search-box{flex:1;display:flex;height:40px;}
+.search-input{flex:1;padding:0 15px;border:2px solid var(--red);border-right:none;border-radius:4px 0 0 4px;font-size:14px;outline:none;transition:box-shadow .2s;}
+.search-input:focus{box-shadow:0 0 6px rgba(228,57,60,.3);}
+
+/* ===== 搜索按钮 ===== */
+.search-btn{width:100px;height:40px;background:var(--red);color:var(--white);border:none;border-radius:0 4px 4px 0;font-size:16px;cursor:pointer;transition:background .2s,transform .1s;}
+.search-btn:hover{background:#c81623;}
+.search-btn:active{transform:scale(.96);}
+
+/* ===== 购物车按钮 ===== */
+.cart-btn{width:140px;height:40px;background:var(--white);border:1px solid var(--border);border-radius:4px;margin-left:30px;display:flex;align-items:center;justify-content:center;color:var(--red);font-size:14px;position:relative;transition:border-color .2s,box-shadow .2s,transform .1s;}
+.cart-btn:hover{border-color:var(--red);box-shadow:0 0 8px rgba(228,57,60,.15);}
+.cart-btn:active{transform:scale(.97);}
+.cart-count{position:absolute;top:-8px;right:20px;background:var(--red);color:var(--white);font-size:12px;padding:1px 6px;border-radius:8px;min-width:16px;text-align:center;}
+
+/* ===== 主导航 / 商品分类 ===== */
+.main-nav{height:44px;background:linear-gradient(135deg,var(--red),#c81623);line-height:44px;box-shadow:0 2px 6px rgba(0,0,0,.1);}
+.nav-list{display:flex;}
+.nav-item{padding:0;position:relative;}
+.nav-item a{color:var(--white);font-size:14px;display:block;padding:0 22px;transition:background .25s;position:relative;}
+.nav-item a:hover{background:rgba(255,255,255,.2);}
+.nav-item a::after{content:"";position:absolute;bottom:0;left:50%;width:0;height:3px;background:#fff;transition:all .25s;transform:translateX(-50%);border-radius:2px 2px 0 0;}
+.nav-item a:hover::after{width:60%;}
+.nav-item + .nav-item::before{content:"|";position:absolute;left:0;top:50%;transform:translateY(-50%);color:rgba(255,255,255,.25);font-size:12px;}
+
+/* ===== 页脚 ===== */
+.footer{background:#333;color:#ccc;padding:30px 0;text-align:center;font-size:12px;margin-top:40px;}.footer a{color:#999;margin:0 10px;transition:color .2s;}.footer a:hover{color:var(--red);}
+
+/* ===== 商品网格 ===== */
+.goods-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;padding:20px 0;}
+.goods-card{background:var(--white);border-radius:10px;overflow:hidden;border:1px solid var(--border);transition:transform .3s,box-shadow .3s;}
+.goods-card:hover{transform:translateY(-6px);box-shadow:0 8px 25px rgba(0,0,0,.12);}
+.goods-img{height:200px;background:#f7f7f7;display:flex;align-items:center;justify-content:center;font-size:48px;color:var(--tlighter);}
+.goods-info{padding:15px;}
+.goods-name{font-size:14px;color:var(--text);margin-bottom:8px;height:40px;overflow:hidden;line-height:1.5;}
+.goods-name a{color:var(--text);transition:color .2s;}
+.goods-name a:hover{color:var(--red);}
+.goods-price{color:var(--red);font-size:20px;font-weight:bold;margin-bottom:12px;}
+
+/* ===== 加入购物车按钮 ===== */
+.add-cart-btn{width:100%;padding:9px;background:var(--red);color:var(--white);border:none;border-radius:6px;font-size:14px;cursor:pointer;transition:background .2s,transform .1s,box-shadow .2s;}
+.add-cart-btn:hover{background:#c81623;box-shadow:0 3px 10px rgba(228,57,60,.35);}
+.add-cart-btn:active{transform:scale(.96);}
+
+/* ===== Banner ===== */
+.banner{background:linear-gradient(135deg,#e4393c,#ff6a00);color:var(--white);padding:40px;text-align:center;margin:20px 0;border-radius:10px;box-shadow:0 4px 15px rgba(228,57,60,.25);}
+.banner h2{font-size:28px;margin-bottom:10px;}
+.section-title{font-size:20px;font-weight:bold;color:var(--text);margin:30px 0 20px;display:flex;justify-content:space-between;}
+
+/* ===== 排序按钮 ===== */
+.sort-btn{padding:6px 18px;border:1px solid var(--border);border-radius:20px;background:var(--white);cursor:pointer;font-size:13px;margin-right:10px;transition:all .25s;}
+.sort-btn:hover{border-color:var(--red);color:var(--red);background:#fff5f5;}
+.sort-btn.active{border-color:var(--red);color:var(--white);background:var(--red);}
+.sort-btn.active:hover{background:#c81623;}
+.sort-btn:active{transform:scale(.95);}
+
+/* ===== 分页按钮 ===== */
+.page-btn{display:inline-block;padding:6px 14px;border:1px solid var(--border);margin:0 3px;border-radius:6px;cursor:pointer;font-size:13px;background:var(--white);transition:all .2s;}
+.page-btn:hover{border-color:var(--red);color:var(--red);}
+.page-btn.active{background:var(--red);color:var(--white);border-color:var(--red);}
+.page-btn:active{transform:scale(.93);}
+
+/* ===== 通用按钮 ===== */
+.btn{padding:10px 24px;border:none;border-radius:6px;font-size:14px;cursor:pointer;display:inline-block;text-decoration:none;transition:all .25s;}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.15);}
+.btn:active{transform:translateY(0) scale(.97);}
+
+/* ===== 数量按钮 ===== */
+.qty-btn{width:30px;height:30px;border:1px solid var(--border);background:var(--white);cursor:pointer;border-radius:4px;font-size:16px;transition:all .2s;}
+.qty-btn:hover{background:#f5f5f5;border-color:var(--red);color:var(--red);}
+.qty-btn:active{transform:scale(.9);background:var(--red);color:white;}
+
+/* ===== 结算按钮 ===== */
+.checkout-btn{padding:12px 44px;background:var(--red);color:var(--white);border:none;border-radius:6px;font-size:16px;cursor:pointer;transition:all .25s;font-weight:bold;}
+.checkout-btn:hover{background:#c81623;box-shadow:0 4px 15px rgba(228,57,60,.4);transform:translateY(-1px);}
+.checkout-btn:active{transform:translateY(0) scale(.97);}*{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei","Helvetica Neue",Arial,sans-serif;}
+a{text-decoration:none;color:#333;}ul,ol{list-style:none;}img{border:none;vertical-align:middle;}
+:root{--red:#e4393c;--orange:#ff6a00;--text:#333;--tlight:#666;--tlighter:#999;--border:#e0e0e0;--bg:#f5f5f5;--white:#fff;}
+.top-nav{height:30px;background:#f2f2f2;border-bottom:1px solid #e5e5e5;line-height:30px;font-size:12px;color:var(--tlight);}
+.container{width:1200px;margin:0 auto;}
+.top-nav-left{float:left;}.top-nav-right{float:right;}
+.top-nav a{color:var(--tlight);margin:0 8px;}.top-nav a:hover{color:var(--red);}
+.header{height:100px;background:var(--white);border-bottom:1px solid var(--border);}
+.header-content{display:flex;align-items:center;height:100%;}
+.logo{width:200px;height:60px;background:var(--red);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--white);font-size:24px;font-weight:bold;margin-right:50px;}
+.search-box{flex:1;display:flex;height:40px;}
+.search-input{flex:1;padding:0 15px;border:2px solid var(--red);border-right:none;border-radius:4px 0 0 4px;font-size:14px;outline:none;}
+.search-btn{width:100px;height:40px;background:var(--red);color:var(--white);border:none;border-radius:0 4px 4px 0;font-size:16px;cursor:pointer;}
+.cart-btn{width:140px;height:40px;background:var(--white);border:1px solid var(--border);border-radius:4px;margin-left:30px;display:flex;align-items:center;justify-content:center;color:var(--red);font-size:14px;position:relative;}
+.cart-count{position:absolute;top:-8px;right:20px;background:var(--red);color:var(--white);font-size:12px;padding:1px 6px;border-radius:8px;min-width:16px;text-align:center;}
+.main-nav{height:40px;background:var(--red);line-height:40px;}
+.nav-list{display:flex;}.nav-item{padding:0 20px;}.nav-item a{color:var(--white);font-size:14px;display:block;padding:0 10px;}
+.nav-item a:hover{background:rgba(255,255,255,.15);}
+.footer{background:#333;color:#ccc;padding:30px 0;text-align:center;font-size:12px;}.footer a{color:#999;margin:0 10px;}.footer a:hover{color:var(--red);}
+
+.detail-wrap{display:flex;gap:40px;padding:30px 0;}
+.detail-img{width:450px;height:450px;background:#f5f5f5;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:80px;color:var(--tlighter);flex-shrink:0;}
+.detail-info{flex:1;}
+.detail-name{font-size:22px;color:var(--text);margin-bottom:15px;}
+.detail-price{background:#fff5f5;padding:15px;border-radius:4px;margin-bottom:20px;}
+.current-price{font-size:28px;color:var(--red);font-weight:bold;}
+.original-price{font-size:14px;color:var(--tlighter);text-decoration:line-through;margin-left:10px;}
+.detail-stock{font-size:14px;color:var(--tlight);margin-bottom:20px;}
+.qty-control{display:flex;align-items:center;gap:10px;margin-bottom:20px;}
+.qty-btn{width:32px;height:32px;border:1px solid var(--border);background:var(--white);cursor:pointer;font-size:18px;border-radius:4px;}
+.qty-input{width:60px;height:32px;text-align:center;border:1px solid var(--border);border-radius:4px;font-size:14px;}
+.detail-btns{display:flex;gap:15px;}
+.btn-cart{padding:12px 30px;background:var(--red);color:var(--white);border:none;border-radius:4px;font-size:16px;cursor:pointer;}
+.btn-buy{padding:12px 30px;background:#ff6a00;color:var(--white);border:none;border-radius:4px;font-size:16px;cursor:pointer;}
+</style></head>
+<body>
+<div class="top-nav"><div class="container">
+<span class="top-nav-left"><a href="#">欢迎光临便民超市</a><span class="sep">|</span><a href="login.html">请登录</a></span>
+<span class="top-nav-right"><a href="#">会员中心</a><span class="sep">|</span><a href="#">客服中心</a></span>
+</div></div>
+<div class="header"><div class="container"><div class="header-content">
+<div class="logo">便民超市</div>
+<div class="search-box"><input type="text" class="search-input" id="searchInput" placeholder="搜索商品、品牌、店铺"><button class="search-btn" id="searchBtn">搜索</button></div>
+<a href="cart.html" class="cart-btn">购物车<span class="cart-count" id="cartCount" style="display:none;">0</span></a>
+</div></div></div>
+<div class="main-nav"><div class="container"><ul class="nav-list">
+<li class="nav-item"><a href="index.html">首页</a></li>
+<li class="nav-item"><a href="goods_list.html?cate=食品饮料">食品饮料</a></li>
+<li class="nav-item"><a href="goods_list.html?cate=生鲜果蔬">生鲜果蔬</a></li>
+<li class="nav-item"><a href="goods_list.html?cate=日用百货">日用百货</a></li>
+<li class="nav-item"><a href="goods_list.html?cate=个人护理">个人护理</a></li>
+</ul></div></div>
+<div class="container">
+<div class="breadcrumb" style="padding:15px 0;font-size:13px;color:var(--tlighter);"><a href="index.html" style="color:var(--tlighter);">首页</a> &gt; <a href="goods_list.html" style="color:var(--tlighter);">商品列表</a> &gt; <span style="color:var(--text);">商品详情</span></div>
+<div class="detail-wrap">
+<div class="detail-img" id="mainImg">商品图片</div>
+<div class="detail-info">
+<div class="detail-name" id="detailName">商品名称</div>
+<div class="detail-price"><span class="current-price" id="detailPrice"><span>¥</span>0.00</span><span class="original-price" id="originalPrice">¥0.00</span></div>
+<div class="detail-stock">库存：<span id="stockNum">0</span>件 &nbsp; 销量：<span id="salesNum">0</span>件</div>
+<div class="qty-control"><span>数量：</span><button class="qty-btn" id="minusBtn">-</button><input type="text" class="qty-input" id="qtyInput" value="1"><button class="qty-btn" id="plusBtn">+</button></div>
+<div class="detail-btns"><button class="btn-cart" id="addCartBtn">加入购物车</button><button class="btn-buy" id="buyNowBtn">立即购买</button></div>
+</div></div>
+<div style="margin-top:30px;padding:20px;background:var(--white);border-radius:8px;" id="descArea"><h3 style="margin-bottom:10px;">商品描述</h3><p id="descText">暂无描述</p></div>
+</div>
+<div class="footer"><div class="container"><a href="#">关于我们</a><a href="#">配送说明</a><a href="#">退换货政策</a><p style="margin-top:10px;">&copy; 2026 便民超市 版权所有</p></div></div>
+<script src="js/utils.js"></script><script src="js/api.js"></script><script>var cg = null, cq = 1;
+async function ld(){
+    var p = getUrlParams(), id = parseInt(p.id);
+    if(!id){showToast("商品ID无效");return;}
+    cg = await API.getGoodsById(id);
+    if(!cg){document.getElementById("detailName").textContent="商品不存在";return;}
+    document.getElementById("detailName").textContent = cg.name;
+    document.getElementById("detailPrice").innerHTML = '<span>¥</span>' + cg.price.toFixed(2);
+    document.getElementById("originalPrice").textContent = "¥" + (cg.originalPrice || cg.price).toFixed(2);
+    document.getElementById("stockNum").textContent = cg.stock;
+    document.getElementById("salesNum").textContent = cg.sales || 0;
+    document.getElementById("mainImg").textContent = cg.img || cg.name;
+    document.getElementById("descText").textContent = cg.desc || "暂无描述";
+}
+document.getElementById("minusBtn").addEventListener("click",function(){
+    var q = parseInt(document.getElementById("qtyInput").value);
+    if(q > 1) document.getElementById("qtyInput").value = q - 1;
+});
+document.getElementById("plusBtn").addEventListener("click",function(){
+    var q = parseInt(document.getElementById("qtyInput").value);
+    var s = parseInt(document.getElementById("stockNum").textContent);
+    if(q < s && q < 99) document.getElementById("qtyInput").value = q + 1;
+});
+document.getElementById("qtyInput").addEventListener("input",function(){
+    var v = parseInt(this.value); if(isNaN(v) || v < 1) this.value = 1;
+    else{var s = parseInt(document.getElementById("stockNum").textContent); if(v > s || v > 99) this.value = Math.min(s,99);}
+});
+document.getElementById("addCartBtn").addEventListener("click", async function(){
+    if(!cg) return; var q = parseInt(document.getElementById("qtyInput").value);
+    if(await API.addToCart(cg.id, q, "")){showToast(cg.name+" x"+q+" 已加入购物车");}
+});
+document.getElementById("buyNowBtn").addEventListener("click", async function(){
+    if(!cg) return; var q = parseInt(document.getElementById("qtyInput").value);
+    if(await API.addToCart(cg.id, q, "")){window.location.href="cart.html";}
+});
+document.getElementById("searchBtn").addEventListener("click",function(){
+    var kw = document.getElementById("searchInput").value.trim();
+    if(kw){window.location.href="goods_list.html?keyword="+encodeURIComponent(kw);}
+    else{showToast("请输入搜索关键词");}
+});
+document.getElementById("searchInput").addEventListener("keydown",function(e){if(e.key==="Enter"){document.getElementById("searchBtn").click();}});
+updateCartCount(); ld();</script></body></html>

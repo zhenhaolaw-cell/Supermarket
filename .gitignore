@@ -1,0 +1,15 @@
+# Java 编译输出
+out/
+*.class
+
+# IDE 文件
+.idea/
+*.iml
+
+# 临时文件
+_scratch/
+*.zip
+
+# 系统
+.DS_Store
+Thumbs.db

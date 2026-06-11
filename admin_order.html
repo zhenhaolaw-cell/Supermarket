@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>订单管理 - 便民超市后台管理</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei","Helvetica Neue",Arial,sans-serif;}
+a{text-decoration:none;color:#333;}ul,ol{list-style:none;}
+:root{--red:#e4393c;--orange:#ff6a00;--text:#333;--tlight:#666;--border:#e0e0e0;--bg:#f5f5f5;--white:#fff;--green:#52c41a;--yellow:#faad14;}
+body{background:var(--bg);}
+.top-header{height:60px;background:var(--white);border-bottom:1px solid var(--border);position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 20px;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+.header-left{display:flex;align-items:center;}
+.logo{width:180px;height:40px;background:var(--red);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--white);font-size:18px;font-weight:bold;margin-right:30px;}
+.sidebar{width:220px;background:var(--white);border-right:1px solid var(--border);position:fixed;top:60px;left:0;bottom:0;overflow-y:auto;padding-top:20px;}
+.menu-item{padding:12px 20px;display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text);cursor:pointer;border-left:3px solid transparent;}
+.menu-item:hover{background:#f9f9f9;color:var(--red);}
+.menu-item.active{background:#fff5f5;color:var(--red);border-left-color:var(--red);font-weight:500;}
+.main-content{margin-left:220px;margin-top:60px;padding:20px;min-height:calc(100vh-60px);}
+.page-title{font-size:22px;font-weight:bold;color:var(--text);margin-bottom:20px;}
+.action-bar{background:var(--white);padding:15px 20px;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;gap:15px;flex-wrap:wrap;box-shadow:0 2px 4px rgba(0,0,0,.04);}
+.btn{padding:8px 20px;border:none;border-radius:4px;font-size:14px;cursor:pointer;display:inline-block;text-decoration:none;}
+.btn-primary{background:var(--red);color:var(--white);}
+.search-input-a{padding:8px 12px;border:1px solid var(--border);border-radius:4px;font-size:14px;width:250px;outline:none;}
+table{width:100%;border-collapse:collapse;background:var(--white);border-radius:8px;overflow:hidden;box-shadow:0 2px 4px rgba(0,0,0,.04);}
+th,td{padding:12px 15px;text-align:left;border-bottom:1px solid var(--border);font-size:14px;}
+th{background:#fafafa;font-weight:600;color:var(--text);}
+.status-tag{padding:2px 10px;border-radius:10px;font-size:12px;}
+.status-tag.success{background:#f6ffed;color:#52c41a;border:1px solid #b7eb8f;}
+.status-tag.warning{background:#fffbe6;color:#faad14;border:1px solid #ffe58f;}
+.status-tag.primary{background:#e6f7ff;color:#1890ff;border:1px solid #91d5ff;}
+.status-tag.danger{background:#fff2f0;color:#f5222d;border:1px solid #ffccc7;}
+.logout-btn{padding:6px 15px;background:var(--white);border:1px solid var(--border);border-radius:4px;font-size:13px;cursor:pointer;}
+.logout-btn:hover{border-color:var(--red);color:var(--red);}
+</style></head>
+<body>
+<div class="top-header"><div class="header-left"><div class="logo">便民超市</div></div><div class="header-right"><button class="logout-btn" id="logoutBtn">退出登录</button></div></div>
+<div class="sidebar">
+<div class="menu-item" onclick="location.href='admin_index.html'"><span>📊</span> 数据统计</div>
+<div class="menu-item" onclick="location.href='admin_goods.html'"><span>📦</span> 商品管理</div>
+<div class="menu-item active"><span>📋</span> 订单管理</div>
+<div class="menu-item" onclick="location.href='admin_member.html'"><span>👥</span> 会员管理</div>
+</div>
+<div class="main-content">
+<div class="page-title">订单管理</div>
+<div class="action-bar">
+<input type="text" class="search-input-a" id="searchInput" placeholder="搜索订单号">
+<button class="btn btn-primary" id="searchBtn">搜索</button>
+<button class="btn" id="refreshBtn" style="background:var(--white);border:1px solid var(--border);">刷新</button>
+</div>
+<table><thead><tr><th>订单号</th><th>商品</th><th>金额</th><th>状态</th><th>时间</th><th>操作</th></tr></thead><tbody id="ordersTable"></tbody></table>
+</div>
+<script src="js/utils.js"></script>
+<script src="js/api.js"></script>
+<script>
+async function renderOrders(kw) {
+    var os = await API.getOrders();
+    if(kw){ os = os.filter(function(o){return o.orderNo.indexOf(kw) >= 0;}); }
+    var tbody = document.getElementById("ordersTable"); tbody.innerHTML = "";
+    if(os.length === 0){ tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:30px;color:#999;">暂无订单</td></tr>'; return; }
+    for(var i = os.length - 1; i >= 0; i--){
+        var o = os[i], names = [];
+        for(var j = 0; j < o.items.length; j++){ names.push(o.items[j].name + " x" + o.items[j].quantity); }
+        var tr = document.createElement("tr");
+        var actions = "";
+        if(o.status === "pending"){ actions += '<button class="btn-status" data-action="ship" data-orderno="' + o.orderNo + '" style="background:#52c41a;color:white;padding:4px 12px;border:none;border-radius:4px;font-size:12px;cursor:pointer;margin-right:4px;">发货</button>'; }
+        if(o.status === "shipped"){ actions += '<button class="btn-status" data-action="complete" data-orderno="' + o.orderNo + '" style="background:#1890ff;color:white;padding:4px 12px;border:none;border-radius:4px;font-size:12px;cursor:pointer;margin-right:4px;">完成</button>'; }
+        if(o.status !== "completed" && o.status !== "cancelled"){ actions += '<button class="btn-status" data-action="cancel" data-orderno="' + o.orderNo + '" style="background:#f5222d;color:white;padding:4px 12px;border:none;border-radius:4px;font-size:12px;cursor:pointer;">取消</button>'; }
+        tr.innerHTML = "<td>" + o.orderNo + "</td><td>" + names.join(", ") + "</td><td>" + formatPrice(o.total) + '</td><td><span class="status-tag ' + getOrderStatusClass(o.status) + '">' + getOrderStatusText(o.status) + "</span></td><td>" + formatDate(o.createTime) + "</td><td>" + actions + "</td>";
+        tbody.appendChild(tr);
+    }
+    document.querySelectorAll(".btn-status").forEach(function(btn){
+        btn.onclick = async function(){
+            var action = this.getAttribute("data-action"), orderNo = this.getAttribute("data-orderno");
+            if(action === "ship"){ if(confirm("确定要发货吗？")){ await API.updateOrderStatus(orderNo, "shipped"); showToast("已发货"); renderOrders(); }}
+            else if(action === "complete"){ if(confirm("确定要完成吗？")){ await API.updateOrderStatus(orderNo, "completed"); showToast("已完成"); renderOrders(); }}
+            else if(action === "cancel"){ if(confirm("确定要取消吗？")){ await API.updateOrderStatus(orderNo, "cancelled"); showToast("已取消"); renderOrders(); }}
+        };
+    });
+}
+document.getElementById("searchBtn").addEventListener("click", function(){ renderOrders(document.getElementById("searchInput").value.trim()); });
+document.getElementById("searchInput").addEventListener("keydown", function(e){ if(e.key === "Enter") document.getElementById("searchBtn").click(); });
+document.getElementById("refreshBtn").addEventListener("click", function(){ renderOrders(); showToast("已刷新"); });
+document.getElementById("logoutBtn").addEventListener("click", function(){ API.logout(); location.href = "login.html"; });
+if(!API.isLoggedIn()){ location.href = "login.html"; }
+renderOrders();
+</script></body></html>

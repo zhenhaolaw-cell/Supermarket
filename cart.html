@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>购物车 - 便民超市</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei","Helvetica Neue",Arial,sans-serif;}
+a{text-decoration:none;color:#333;}ul,ol{list-style:none;}img{border:none;vertical-align:middle;}
+:root{--red:#e4393c;--orange:#ff6a00;--text:#333;--tlight:#666;--tlighter:#999;--border:#e0e0e0;--bg:#f5f5f5;--white:#fff;}
+
+/* ===== 购物车顶部 ===== */
+.top-header{height:60px;background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 30px;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+.logo{width:180px;height:40px;background:linear-gradient(135deg,var(--red),#c81623);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--white);font-size:18px;font-weight:bold;box-shadow:0 2px 8px rgba(228,57,60,.25);}
+.header-right a{font-size:14px;color:var(--text);padding:6px 16px;border-radius:4px;transition:all .25s;}
+.header-right a:hover{color:var(--red);background:#fff5f5;}
+
+/* ===== 主体 ===== */
+.main-content{margin-top:20px;padding:20px;max-width:1200px;margin-left:auto;margin-right:auto;min-height:500px;}
+.page-title{font-size:24px;font-weight:bold;color:var(--text);margin-bottom:24px;display:flex;align-items:center;gap:10px;}
+
+/* ===== 购物车容器 ===== */
+.cart-container{background:var(--white);border-radius:12px;box-shadow:0 2px 16px rgba(0,0,0,.06);overflow:hidden;border:1px solid var(--border);}
+.cart-header{display:grid;grid-template-columns:1fr 100px 120px 120px 80px;padding:16px 24px;background:#fafafa;border-bottom:1px solid var(--border);font-weight:600;font-size:14px;color:var(--tlight);}
+
+/* ===== 购物车行 ===== */
+.cart-item{display:grid;grid-template-columns:1fr 100px 120px 120px 80px;padding:20px 24px;border-bottom:1px solid #f0f0f0;align-items:center;transition:background .2s;}
+.cart-item:hover{background:#fafafa;}
+.cart-item:last-child{border-bottom:none;}
+.goods-info{display:flex;align-items:center;gap:16px;}
+.goods-img-w{width:80px;height:80px;background:#f5f5f5;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;color:var(--tlighter);}
+.goods-name-text{font-size:14px;color:var(--text);font-weight:500;}
+
+/* ===== 数量按钮 ===== */
+.qty-btn{width:30px;height:30px;border:1px solid var(--border);background:var(--white);cursor:pointer;border-radius:4px;font-size:16px;line-height:1;transition:all .2s;}
+.qty-btn:hover{background:#f5f5f5;border-color:var(--red);color:var(--red);}
+.qty-btn:active{transform:scale(.88);background:var(--red);color:white;border-color:var(--red);}
+.qty-number{width:36px;text-align:center;font-size:14px;font-weight:500;}
+
+/* ===== 删除按钮 ===== */
+.del-btn{color:#999;cursor:pointer;border:none;background:none;font-size:13px;padding:4px 10px;border-radius:4px;transition:all .2s;}
+.del-btn:hover{color:var(--red);background:#fff5f5;}
+
+/* ===== 购物车底部 ===== */
+.cart-footer{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;background:#fafafa;border-top:1px solid var(--border);}
+.total-label{font-size:14px;color:var(--tlight);}
+.total-price{font-size:24px;font-weight:bold;color:var(--red);}
+
+/* ===== 结算按钮 ===== */
+.checkout-btn{padding:14px 50px;background:linear-gradient(135deg,var(--red),#c81623);color:var(--white);border:none;border-radius:8px;font-size:16px;cursor:pointer;font-weight:bold;transition:all .25s;box-shadow:0 4px 15px rgba(228,57,60,.3);}
+.checkout-btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(228,57,60,.45);}
+.checkout-btn:active{transform:translateY(0) scale(.97);}
+
+/* ===== 空购物车 ===== */
+.empty-cart{text-align:center;padding:80px 20px 100px;color:var(--tlighter);}
+.empty-icon{font-size:96px;margin-bottom:10px;display:block;}
+.empty-sub{font-size:48px;margin-bottom:16px;display:block;}
+.empty-text{font-size:18px;margin-bottom:8px;color:#999;}
+.empty-hint{font-size:13px;color:#ccc;margin-bottom:30px;}
+.go-shop-btn{display:inline-block;padding:12px 40px;background:var(--red);color:var(--white);border-radius:8px;font-size:15px;text-decoration:none;transition:all .25s;box-shadow:0 4px 12px rgba(228,57,60,.25);}
+.go-shop-btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(228,57,60,.35);}
+.go-shop-btn:active{transform:translateY(0) scale(.97);}
+
+/* ===== 页脚 ===== */
+.footer{background:#333;color:#ccc;padding:30px 0;text-align:center;font-size:12px;margin-top:40px;}
+.footer a{color:#999;margin:0 10px;transition:color .2s;}
+.footer a:hover{color:var(--red);}
+</style></head>
+<body>
+<div class="top-header">
+<div class="header-left"><div class="logo">便民超市</div></div>
+<div class="header-right" style="display:flex;gap:10px;align-items:center;">
+<a href="index.html">首页</a>
+<a href="goods_list.html">商品列表</a>
+<a href="login.html">后台管理</a>
+</div>
+</div>
+<div class="main-content">
+<h2 class="page-title">我的购物车</h2>
+<div class="cart-container" id="cartContainer"></div>
+</div>
+<div class="footer"><div class="container"><a href="#">关于我们</a><a href="#">配送说明</a><a href="#">退换货政策</a><p style="margin-top:10px;">&copy; 2026 便民超市 版权所有</p></div></div>
+<script src="js/utils.js"></script>
+<script src="js/api.js"></script>
+<script>
+async function renderCart(){
+    var cart = await API.getCart(), c = document.getElementById("cartContainer");
+    if(cart.length === 0){
+        c.innerHTML = '<div class="empty-cart"><div class="empty-icon">🛒</span><span class="empty-sub">😅</div><div class="empty-text">购物车是空的</div><div class="empty-hint">快去挑选心仪的商品吧</div><a href="index.html" class="go-shop-btn">去逛逛</a></div>';
+        return;
+    }
+    var html = '<div class="cart-header"><div>商品</div><div>单价</div><div>数量</div><div>小计</div><div>操作</div></div>';
+    var total = 0;
+    for(var i = 0; i < cart.length; i++){
+        var item = cart[i], sub = item.price * item.quantity; total += sub;
+        html += '<div class="cart-item"><div class="goods-info"><div class="goods-img-w">' + (item.img||"商品") + '</div><div class="goods-name-text">' + item.name + '</div></div><div style="color:var(--red);font-weight:500;">&yen;' + item.price.toFixed(2) + '</div><div style="display:flex;align-items:center;gap:6px;"><button class="qty-btn" onclick="updateQty(' + item.id + ',' + (item.quantity-1) + ')">-</button><span class="qty-number">' + item.quantity + '</span><button class="qty-btn" onclick="updateQty(' + item.id + ',' + (item.quantity+1) + ')">+</button></div><div style="color:var(--red);font-weight:bold;">&yen;' + sub.toFixed(2) + '</div><button class="del-btn" onclick="delItem(' + item.id + ')">删除</button></div>';
+    }
+    html += '<div class="cart-footer"><div><button class="checkout-btn" onclick="co()">结算</button></div><div><div class="total-label">合计</div><div class="total-price">&yen;' + total.toFixed(2) + '</div></div></div>';
+    c.innerHTML = html;
+}
+async function updateQty(id, qty){ await API.updateCartQuantity(id, qty); renderCart(); }
+async function delItem(id){ await API.removeFromCart(id); renderCart(); }
+async function co(){
+    var cart = await API.getCart();
+    if(cart.length === 0){showToast("购物车为空"); return;}
+    try{
+        await API.createOrder();
+        showToast("订单提交成功！");
+        renderCart();
+    } catch(e){ showToast("结算失败：" + e.message); }
+}
+updateCartCount(); renderCart();
+</script></body></html>

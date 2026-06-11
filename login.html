@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>后台管理 - 便民超市</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei",sans-serif;}
+body{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;}
+.login-container{background:#fff;border-radius:10px;box-shadow:0 15px 40px rgba(0,0,0,.15);width:400px;padding:40px;animation:fadeIn .4s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-20px);}to{opacity:1;transform:translateY(0);}}
+.login-logo{text-align:center;margin-bottom:30px;}
+.login-logo h1{color:#e4393c;font-size:28px;font-weight:bold;}
+.login-logo p{color:#666;font-size:14px;margin-top:10px;}
+.form-group{margin-bottom:20px;}
+.form-label{display:block;margin-bottom:8px;font-size:14px;color:#333;font-weight:500;}
+.form-input{width:100%;height:45px;padding:0 15px;border:1px solid #ddd;border-radius:6px;font-size:14px;outline:none;transition:border-color .2s,box-shadow .2s;}
+.form-input:focus{border-color:#e4393c;box-shadow:0 0 0 3px rgba(228,57,60,.12);}
+.login-btn{width:100%;height:45px;background:linear-gradient(135deg,#e4393c,#c81623);color:#fff;border:none;border-radius:6px;font-size:16px;font-weight:bold;cursor:pointer;margin-top:10px;transition:all .25s;box-shadow:0 4px 12px rgba(228,57,60,.3);}
+.login-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(228,57,60,.4);}
+.login-btn:active{transform:translateY(0) scale(.97);}
+.error-msg{color:#e4393c;font-size:13px;margin-top:10px;text-align:center;display:none;}
+</style></head>
+<body>
+<div class="login-container">
+<div class="login-logo"><h1>便民超市</h1><p>后台管理系统</p></div>
+<form id="loginForm">
+<div class="form-group"><label class="form-label">用户名</label><input type="text" class="form-input" id="username" placeholder="请输入用户名" value="lexluo"></div>
+<div class="form-group"><label class="form-label">密码</label><input type="password" class="form-input" id="password" placeholder="请输入密码" value="Lzh554535"></div>
+<button type="submit" class="login-btn">登录</button>
+<div class="error-msg" id="errorMsg">用户名或密码错误</div>
+</form>
+<div class="back-link" style="text-align:center;margin-top:20px;"><a href="index.html" style="color:#666;font-size:13px;text-decoration:none;">&larr; 返回前台首页</a></div>
+</div>
+<script src="js/utils.js"></script><script src="js/api.js"></script><script>document.getElementById("loginForm").addEventListener("submit", async function(e){
+    e.preventDefault();
+    var u = document.getElementById("username").value.trim(), pwd = document.getElementById("password").value.trim();
+    if(await API.login(u, pwd)){ window.location.href = "admin_index.html"; }
+    else{
+        var m = document.getElementById("errorMsg");
+        m.style.display = "block"; setTimeout(function(){m.style.display = "none";},3000);
+    }
+});
+if(API.isLoggedIn()){ window.location.href = "admin_index.html"; }</script></body></html>

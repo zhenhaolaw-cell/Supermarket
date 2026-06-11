@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>添加商品 - 便民超市后台管理</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei","Helvetica Neue",Arial,sans-serif;}
+a{text-decoration:none;color:#333;}ul,ol{list-style:none;}
+:root{--red:#e4393c;--orange:#ff6a00;--text:#333;--tlight:#666;--border:#e0e0e0;--bg:#f5f5f5;--white:#fff;--green:#52c41a;--yellow:#faad14;}
+body{background:var(--bg);}
+.top-header{height:60px;background:var(--white);border-bottom:1px solid var(--border);position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 20px;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+.header-left{display:flex;align-items:center;}
+.logo{width:180px;height:40px;background:var(--red);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--white);font-size:18px;font-weight:bold;margin-right:30px;}
+.sidebar{width:220px;background:var(--white);border-right:1px solid var(--border);position:fixed;top:60px;left:0;bottom:0;overflow-y:auto;padding-top:20px;}
+.menu-item{padding:12px 20px;display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text);cursor:pointer;border-left:3px solid transparent;}
+.menu-item:hover{background:#f9f9f9;color:var(--red);}
+.menu-item.active{background:#fff5f5;color:var(--red);border-left-color:var(--red);font-weight:500;}
+.main-content{margin-left:220px;margin-top:60px;padding:20px;min-height:calc(100vh-60px);}
+.page-title{font-size:22px;font-weight:bold;color:var(--text);margin-bottom:20px;}
+.logout-btn{padding:6px 15px;background:var(--white);border:1px solid var(--border);border-radius:4px;font-size:13px;cursor:pointer;}
+.logout-btn:hover{border-color:var(--red);color:var(--red);}
+.form-container{background:var(--white);padding:30px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,.04);max-width:600px;}
+.form-group{margin-bottom:20px;}
+.form-group label{display:block;font-size:14px;color:var(--text);margin-bottom:8px;font-weight:500;}
+.form-group input,.form-group select{width:100%;height:40px;padding:0 12px;border:1px solid var(--border);border-radius:4px;font-size:14px;outline:none;}
+.form-group input:focus,.form-group select:focus{border-color:var(--red);}
+.form-group textarea{width:100%;padding:12px;border:1px solid var(--border);border-radius:4px;font-size:14px;outline:none;resize:vertical;min-height:80px;}
+.form-group textarea:focus{border-color:var(--red);}
+.form-row{display:flex;gap:20px;}
+.form-row .form-group{flex:1;}
+.btn{padding:8px 20px;border:none;border-radius:4px;font-size:14px;cursor:pointer;display:inline-block;text-decoration:none;}
+.btn-primary{background:var(--red);color:var(--white);}
+</style></head>
+<body>
+<div class="top-header"><div class="header-left"><div class="logo">便民超市</div></div><div class="header-right"><button class="logout-btn" id="logoutBtn">退出登录</button></div></div>
+<div class="sidebar">
+<div class="menu-item" onclick="location.href='admin_index.html'"><span>📊</span> 数据统计</div>
+<div class="menu-item active"><span>📦</span> 商品管理</div>
+<div class="menu-item" onclick="location.href='admin_order.html'"><span>📋</span> 订单管理</div>
+<div class="menu-item" onclick="location.href='admin_member.html'"><span>👥</span> 会员管理</div>
+</div>
+<div class="main-content">
+<div class="page-title" id="pageTitle">添加商品</div>
+<div class="form-container">
+<form id="goodsForm">
+<input type="hidden" id="goodsId">
+<div class="form-group"><label>商品名称</label><input type="text" id="goodsName" placeholder="请输入商品名称"></div>
+<div class="form-row">
+<div class="form-group"><label>商品分类</label><select id="goodsCate"><option value="">请选择</option><option value="食品饮料">食品饮料</option><option value="生鲜果蔬">生鲜果蔬</option><option value="日用百货">日用百货</option><option value="个人护理">个人护理</option></select></div>
+<div class="form-group"><label>品牌</label><input type="text" id="goodsBrand" placeholder="请输入品牌"></div>
+</div>
+<div class="form-row">
+<div class="form-group"><label>价格</label><input type="number" step="0.01" id="goodsPrice" placeholder="请输入价格"></div>
+<div class="form-group"><label>原价</label><input type="number" step="0.01" id="goodsOriginalPrice" placeholder="请输入原价（选填）"></div>
+</div>
+<div class="form-row">
+<div class="form-group"><label>库存</label><input type="number" id="goodsStock" placeholder="请输入库存数量"></div>
+<div class="form-group"><label>图片标识</label><input type="text" id="goodsImg" placeholder="图片名称或路径"></div>
+</div>
+<div class="form-group"><label>商品描述</label><textarea id="goodsDesc" placeholder="请输入商品描述"></textarea></div>
+<button type="submit" class="btn btn-primary">保存</button>
+</form>
+</div>
+</div>
+<script src="js/utils.js"></script>
+<script src="js/api.js"></script>
+<script>
+var editingId = null;
+var params = getUrlParams();
+if(params.id){
+    editingId = parseInt(params.id);
+    document.getElementById("pageTitle").textContent = "编辑商品";
+    API.getGoodsById(editingId).then(function(g){
+        if(g){
+            document.getElementById("goodsId").value = g.id;
+            document.getElementById("goodsName").value = g.name;
+            document.getElementById("goodsCate").value = g.cate || "";
+            document.getElementById("goodsBrand").value = g.brand || "";
+            document.getElementById("goodsPrice").value = g.price;
+            document.getElementById("goodsOriginalPrice").value = g.originalPrice || "";
+            document.getElementById("goodsStock").value = g.stock;
+            document.getElementById("goodsImg").value = g.img || "";
+            document.getElementById("goodsDesc").value = g.desc || "";
+        }
+    });
+}
+document.getElementById("goodsForm").addEventListener("submit", async function(e){
+    e.preventDefault();
+    var name = document.getElementById("goodsName").value.trim();
+    var cate = document.getElementById("goodsCate").value;
+    var price = parseFloat(document.getElementById("goodsPrice").value);
+    var stock = parseInt(document.getElementById("goodsStock").value);
+    if(!name || !cate || isNaN(price) || isNaN(stock)){ showToast("请填写完整信息"); return; }
+    var data = {
+        name: name, cate: cate, price: price, stock: stock,
+        brand: document.getElementById("goodsBrand").value.trim(),
+        img: document.getElementById("goodsImg").value.trim() || name,
+        desc: document.getElementById("goodsDesc").value.trim(),
+        originalPrice: document.getElementById("goodsOriginalPrice").value || ""
+    };
+    if(editingId){
+        data.id = editingId;
+        await API.updateGoods(data);
+        showToast("编辑成功");
+    } else {
+        await API.addGoods(data);
+        showToast("添加成功");
+    }
+    setTimeout(function(){ location.href = "admin_goods.html"; }, 1500);
+});
+document.getElementById("logoutBtn").addEventListener("click",function(){API.logout(); location.href="login.html";});
+if(!API.isLoggedIn()){ location.href="login.html"; }
+</script></body></html>

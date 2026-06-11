@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>商品管理 - 便民超市后台管理</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei","Helvetica Neue",Arial,sans-serif;}
+a{text-decoration:none;color:#333;}ul,ol{list-style:none;}
+:root{--red:#e4393c;--orange:#ff6a00;--text:#333;--tlight:#666;--border:#e0e0e0;--bg:#f5f5f5;--white:#fff;--green:#52c41a;--yellow:#faad14;}
+body{background:var(--bg);}
+.top-header{height:60px;background:var(--white);border-bottom:1px solid var(--border);position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 20px;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+.header-left{display:flex;align-items:center;}
+.logo{width:180px;height:40px;background:var(--red);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--white);font-size:18px;font-weight:bold;margin-right:30px;}
+.sidebar{width:220px;background:var(--white);border-right:1px solid var(--border);position:fixed;top:60px;left:0;bottom:0;overflow-y:auto;padding-top:20px;}
+.menu-item{padding:12px 20px;display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text);cursor:pointer;border-left:3px solid transparent;}
+.menu-item:hover{background:#f9f9f9;color:var(--red);}
+.menu-item.active{background:#fff5f5;color:var(--red);border-left-color:var(--red);font-weight:500;}
+.main-content{margin-left:220px;margin-top:60px;padding:20px;min-height:calc(100vh-60px);}
+.page-title{font-size:22px;font-weight:bold;color:var(--text);margin-bottom:20px;}
+.action-bar{background:var(--white);padding:15px 20px;border-radius:8px;margin-bottom:20px;display:flex;align-items:center;gap:15px;flex-wrap:wrap;box-shadow:0 2px 4px rgba(0,0,0,.04);}
+.btn{padding:8px 20px;border:none;border-radius:4px;font-size:14px;cursor:pointer;display:inline-block;text-decoration:none;}
+.btn-primary{background:var(--red);color:var(--white);}
+.search-input-a{padding:8px 12px;border:1px solid var(--border);border-radius:4px;font-size:14px;width:250px;outline:none;}
+table{width:100%;border-collapse:collapse;background:var(--white);border-radius:8px;overflow:hidden;box-shadow:0 2px 4px rgba(0,0,0,.04);}
+th,td{padding:12px 15px;text-align:left;border-bottom:1px solid var(--border);font-size:14px;}
+th{background:#fafafa;font-weight:600;color:var(--text);}
+.logout-btn{padding:6px 15px;background:var(--white);border:1px solid var(--border);border-radius:4px;font-size:13px;cursor:pointer;}
+.logout-btn:hover{border-color:var(--red);color:var(--red);}
+.action-btn{padding:4px 12px;border:none;border-radius:4px;font-size:12px;cursor:pointer;}
+.empty-state{text-align:center;padding:50px;color:var(--tlight);}
+</style></head>
+<body>
+<div class="top-header"><div class="header-left"><div class="logo">便民超市</div></div><div class="header-right"><button class="logout-btn" id="logoutBtn">退出登录</button></div></div>
+<div class="sidebar">
+<div class="menu-item" onclick="location.href='admin_index.html'"><span>📊</span> 数据统计</div>
+<div class="menu-item active"><span>📦</span> 商品管理</div>
+<div class="menu-item" onclick="location.href='admin_order.html'"><span>📋</span> 订单管理</div>
+<div class="menu-item" onclick="location.href='admin_member.html'"><span>👥</span> 会员管理</div>
+</div>
+<div class="main-content">
+<div class="page-title">商品管理</div>
+<div class="action-bar">
+<input type="text" class="search-input-a" id="searchInput" placeholder="搜索商品名称或品牌">
+<button class="btn btn-primary" id="searchBtn">搜索</button>
+<a href="admin_goods_add.html" class="btn btn-primary" style="text-decoration:none;">+ 新增商品</a>
+</div>
+<table><thead><tr><th>ID</th><th>图片</th><th>名称</th><th>分类</th><th>价格</th><th>库存</th><th>销量</th><th>操作</th></tr></thead><tbody id="goodsTable"></tbody></table>
+</div>
+<script src="js/utils.js"></script>
+<script src="js/api.js"></script>
+<script>
+async function renderTable(kw){
+    var g = kw ? await API.searchGoods(kw) : await API.getGoods();
+    var tbody = document.getElementById("goodsTable"); tbody.innerHTML = "";
+    if(g.length === 0){ tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state">暂无商品</div></td></tr>'; return; }
+    for(var i = 0; i < g.length; i++){
+        var tr = document.createElement("tr");
+        tr.innerHTML = "<td>" + g[i].id + "</td><td>" + (g[i].img||"无图") + "</td><td>" + g[i].name + "</td><td>" + (g[i].cate||"") + "</td><td>\u00a5" + (g[i].price||0).toFixed(2) + "</td><td>" + (g[i].stock||0) + "</td><td>" + (g[i].sales||0) + '</td><td><a href="admin_goods_add.html?id=' + g[i].id + '" class="action-btn" style="background:#faad14;color:white;padding:4px 12px;border-radius:4px;text-decoration:none;">编辑</a> <button class="action-btn" style="background:#f5222d;color:white;" onclick="del(' + g[i].id + ')">删除</button></td>';
+        tbody.appendChild(tr);
+    }
+}
+async function del(id){ if(confirm("确定要删除该商品吗？")){ await API.deleteGoods(id); showToast("删除成功"); renderTable(); }}
+document.getElementById("searchBtn").addEventListener("click",function(){ renderTable(document.getElementById("searchInput").value.trim()); });
+document.getElementById("searchInput").addEventListener("keydown",function(e){if(e.key==="Enter"){document.getElementById("searchBtn").click();}});
+document.getElementById("logoutBtn").addEventListener("click",function(){API.logout(); location.href="login.html";});
+if(!API.isLoggedIn()){ location.href="login.html"; }
+renderTable();
+</script></body></html>
